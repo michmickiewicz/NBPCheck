@@ -13,8 +13,6 @@ import java.util.Scanner;
 public class Main {
     private static final Gson GSON = new Gson();
     private static DecimalFormat THREE_DIGITS_AFTER_COMMA = new DecimalFormat("#.###");
-
-
     public static void main(String[] args) throws IOException {
 
         for(Currencies code : Currencies.values()) {
