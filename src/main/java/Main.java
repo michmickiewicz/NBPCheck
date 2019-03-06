@@ -1,57 +1,55 @@
 import com.google.gson.Gson;
-import org.joda.time.LocalDate;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.DecimalFormat;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Optional;
 import java.util.Scanner;
 
 public class Main {
     private static final Gson GSON = new Gson();
-    private static DecimalFormat df = new DecimalFormat("#.###");
+    private static DecimalFormat THREE_DIGITS_AFTER_COMMA = new DecimalFormat("#.###");
+
 
     public static void main(String[] args) throws IOException {
 
-        check100zlInCurrency(df, "eur");
-        check100zlInCurrency(df, "usd");
-        check100zlInCurrency(df, "gbp");
-        check100zlInCurrency(df, "chf");
-
-        compareCurrencyValueFor30DaysDifference("eur");
-        compareCurrencyValueFor30DaysDifference("chf");
-        compareCurrencyValueFor30DaysDifference("usd");
-        compareCurrencyValueFor30DaysDifference("gbp");
-
+        for(Currencies code : Currencies.values()) {
+            check100zlInCurrency(THREE_DIGITS_AFTER_COMMA, code.toString());
+        }
+        for(Currencies code : Currencies.values())
+        compareCurrencyValueFor30DaysDifference(code.toString());
     }
 
     private static void compareCurrencyValueFor30DaysDifference(String currency) throws IOException {
         double oldValue = 0;
         double newValue = 0;
         final String text = "Przy sprzedaży 100" + currency + " dzisiaj, mogłeś";
-        if(getRate(createDateForApi(""),currency).isPresent()){
-            oldValue =  getRate(createDateForApi(""),currency).get();
-        }
+            if(getRate(getDateMonthAgo(),currency).isPresent()){
+                oldValue =  getRate(getDateMonthAgo(),currency).get();
+            }
 
-        if(getRate(createDateForApi("now"),currency).isPresent()){
-            newValue = getRate(createDateForApi("now"),currency).get();
-        }
+            if(getRate(getActualDate(),currency).isPresent()){
+                newValue = getRate(getActualDate(),currency).get();
+            }
 
         double roznica = newValue-oldValue;
-        final String s = df.format(roznica * 100) + " pln";
+        final String s = THREE_DIGITS_AFTER_COMMA.format(roznica * 100) + " pln";
 
-        System.out.println("\n\nW dniu : "+ createDateForApi("")+"\n"+"  kurs "+currency+" był :" + df.format(oldValue)+" pln");
-        System.out.println("Dzisiaj : "+createDateForApi("now")+"\n"+"  kurs "+currency+" jest :" +df.format(newValue)+" pln");
-        if(roznica>0){
-            System.out.println(text + " zarobić : " + s);
-                }
+        System.out.println("\nW dniu : "+ getDateMonthAgo()+"\n"+"  kurs "+currency+" był :" + THREE_DIGITS_AFTER_COMMA.format(oldValue)+" pln");
+        System.out.println("Dzisiaj : "+getActualDate()+"\n"+"  kurs "+currency+" jest :" + THREE_DIGITS_AFTER_COMMA.format(newValue)+" pln");
+            if(roznica>0){
+                System.out.println(text + " zarobić : " + s);
+            }
             else if(roznica<0){
                 System.out.println(text+" stracić : " + s);
             }
-            else System.out.println("Kurs jest taki sam i wynosi  :" + df.format(newValue));
-                System.out.println("\n\n\n");
+            else
+                System.out.println("Kurs jest taki sam i wynosi  :" + THREE_DIGITS_AFTER_COMMA.format(newValue));
+                System.out.println("\n\n");
     }
 
     private static Optional<Double> getRate(String date, String currency) throws IOException {
@@ -81,7 +79,6 @@ public class Main {
         return GSON.fromJson(line, Currency.class);
     }
 
-
     private static Currency downloadActualCurrencyFromInternet(String pattern) throws IOException {
         URL url = new URL(pattern);
         URLConnection connection = url.openConnection();
@@ -92,31 +89,15 @@ public class Main {
         return GSON.fromJson(line, Currency.class);
     }
 
-    private static String createDateForApi(String date){
-        if(date.equals("now")){
-            return refactorDate(LocalDate.now());
-        }
-        else {
-            LocalDate today = LocalDate.now();
-            return refactorDate(today.minusDays(31));
-        }
+    private  static String getActualDate(){
+        LocalDateTime actualDate = LocalDateTime.now();
+        DateTimeFormatter date_Format = DateTimeFormatter.ofPattern("YYYY-MM-dd");
+        return date_Format.format(actualDate);
     }
 
-    private static String refactorDate(LocalDate now) {
-        final int month = now.monthOfYear().get();
-        final int day = now.dayOfMonth().get();
-        final int year = now.year().get();
-        return getDate(year, month, day);
+    private static String getDateMonthAgo(){
+        LocalDateTime dateMonthAgo = LocalDateTime.now().minusDays(30);
+        DateTimeFormatter date_Format = DateTimeFormatter.ofPattern("YYYY-MM-dd");
+        return date_Format.format(dateMonthAgo);
     }
-
-    private static String getDate(int year, int month, int day) {
-        if(month <10){
-            if(day<10){
-                return  year +"-0"+ month +"-0"+ day;
-            }
-            return year +"-0"+ month +"-"+ day;
-        }
-        else return  year +"-"+ month +"-0"+ day;
-    }
-
 }
