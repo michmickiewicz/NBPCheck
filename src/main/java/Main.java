@@ -28,17 +28,16 @@ public class Main {
         double oldValue = 0;
         double newValue = 0;
         final String text = "Przy sprzedaży 100" + currency + " dzisiaj, mogłeś";
-            if(getRate(getDateMonthAgo(),currency).isPresent()){
-                oldValue =  getRate(getDateMonthAgo(),currency).get();
+        Optional<Double> optionalOldRate = getRate(getDateMonthAgo(),currency);
+        Optional<Double> optionalNewRate = getRate(getActualDate(),currency);
+            if(optionalOldRate.isPresent()){
+                optionalOldRate.get();
             }
-
-            if(getRate(getActualDate(),currency).isPresent()){
-                newValue = getRate(getActualDate(),currency).get();
+            if(optionalNewRate.isPresent()){
+                optionalNewRate.get();
             }
-
         double roznica = newValue-oldValue;
         final String s = THREE_DIGITS_AFTER_COMMA.format(roznica * 100) + " pln";
-
         System.out.println("\nW dniu : "+ getDateMonthAgo()+"\n"+"  kurs "+currency+" był :" + THREE_DIGITS_AFTER_COMMA.format(oldValue)+" pln");
         System.out.println("Dzisiaj : "+getActualDate()+"\n"+"  kurs "+currency+" jest :" + THREE_DIGITS_AFTER_COMMA.format(newValue)+" pln");
             if(roznica>0){
