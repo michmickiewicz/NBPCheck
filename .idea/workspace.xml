@@ -159,7 +159,8 @@
     </panes>
   </component>
   <component name="PropertiesComponent">
-    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1551894031160" />
+    <property name="SONARLINT_PRECOMMIT_ANALYSIS" value="false" />
+    <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1552117940222" />
   </component>
   <component name="RunDashboard">
     <option name="ruleStates">
